@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Candidate } from '../interfaces/Candidate.interface';
+import { Candidate } from '../interfaces/Candidate.interface.tsx';
 import { searchGithub, searchGithubUser } from '../api/API.tsx';
 
 const CandidateSearch = () => {
