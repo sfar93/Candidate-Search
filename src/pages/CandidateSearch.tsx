@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Candidate } from '../interfaces/Candidate.interface.tsx';
+import { Candidate } from '../interfaces/Candidate.interface';
 import { searchGithub, searchGithubUser } from '../api/API.tsx';
 
 const CandidateSearch = () => {
@@ -12,22 +12,24 @@ const CandidateSearch = () => {
   useEffect(() => {
     const fetchCandidates = async () => {
       setLoading(true);
-      setError(null); // Reset error state before fetching
+      setError(null);
 
       try {
+        // 🔥 Fetch a list of candidates
         const data = await searchGithub();
         setCandidates(data);
 
+        // ✅ Fetch additional details for the first candidate
         if (data.length > 0) {
-          const newData = await searchGithubUser(data[0].login)
-          setSelectedCandidate(newData);
+          const userDetails = await searchGithubUser(data[0].login);
+          setSelectedCandidate(userDetails);
         }
       } catch (err) {
         setError('Failed to load candidates. Please try again later.');
         console.error(err);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     fetchCandidates();
@@ -52,23 +54,23 @@ const CandidateSearch = () => {
   if (currentIndex >= candidates.length) return <p>No more candidates available.</p>;
 
   const currentCandidate = candidates[currentIndex];
-//name, username, location, avatar, email, html_url, and company
+
   return (
     <div>
       <h1>Candidate Search</h1>
       {currentCandidate && (
         <>
-            <img src={currentCandidate.avatar_url} alt={currentCandidate.login} width={100} />
-          <p>name: {currentCandidate.name || "null" }</p>
-          <p>username: {currentCandidate.login || "null"}</p>
-          <p>Company: {currentCandidate.company || "null"}</p>
-          <p> Location: {currentCandidate.location || "null"}</p>
-          <p>Email: {currentCandidate.email || "null"}</p>
+          <img src={currentCandidate.avatar_url} alt={currentCandidate.login} width={100} />
+          <p>Name:{selectedCandidate?.name || "N/A"}</p>
+          <p>Username:{currentCandidate.login || "N/A"}</p>
+          <p>Company:{selectedCandidate?.company || "N/A"}</p>
+          <p>Location:{selectedCandidate?.location || "N/A"}</p>
+          <p>Email:{selectedCandidate?.email || "N/A"}</p>
           <a href={currentCandidate.html_url} target="_blank" rel="noopener noreferrer">
             View GitHub Profile
           </a>
           <br />
-          <button onClick={rejectCandidate}>- Reject</button>
+          <button onClick={rejectCandidate} style={{ marginRight: '10px' }}>- Reject</button>
           <button onClick={acceptCandidate}>+ Accept</button>
         </>
       )}
